@@ -216,6 +216,14 @@ def connected(request):
     return connected_page(request, email, person, draft)
 
 
+def invited_company_name(person):
+    """Name typed by the inviting adviser, only as an editable suggestion."""
+    from eures_beta.users.models import EmployerInvitation
+
+    invitation = EmployerInvitation.objects.filter(employer=person).first()
+    return invitation.company_name if invitation else ''
+
+
 def connected_page(request, email, person, draft, establishment_form=None):
     from eures_beta.employers.employer_workspace import offer_home
 
@@ -237,7 +245,10 @@ def connected_page(request, email, person, draft, establishment_form=None):
             establishment_form
             if establishment_form is not None
             else EstablishmentForm(
-                initial={'name': draft.data.get('companyName', '')} if draft else None
+                initial={
+                    'name': (draft.data.get('companyName', '') if draft else '')
+                    or invited_company_name(person)
+                }
             )
         ),
     )

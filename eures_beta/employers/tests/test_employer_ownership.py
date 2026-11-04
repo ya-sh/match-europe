@@ -274,3 +274,20 @@ class OwnershipTests(TestCase):
         self.assertEqual(
             other.get('/api/imports/' + draft['id'] + '/').status_code, 404
         )
+
+    def test_invited_company_name_prefills_first_establishment(self):
+        from eures_beta.users.models import EmployerInvitation
+
+        self.create()
+        person = self.login(self.client, 'first@fiction.invalid')
+        adviser = get_user_model().objects.create_user(
+            email='adviser@fiction.invalid', kind='adviser'
+        )
+        EmployerInvitation.objects.create(
+            email=person.email,
+            company_name='Fictional Bakery',
+            invited_by=adviser,
+            employer=person,
+        )
+        screen = self.client.get('/employer/connected/')
+        self.assertContains(screen, 'value="Fictional Bakery"')

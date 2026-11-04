@@ -455,3 +455,94 @@ class InvitationTests(TestCase):
         )
         RedactAccessLinks().filter(record)
         self.assertNotIn('secret', record.getMessage())
+
+    def test_company_name_is_optional_normalised_and_listed_for_advisers(self):
+        page = self.client.get(reverse('employer_invite'), {'lang': 'en'})
+        self.assertContains(page, 'Company name (optional)')
+        self.assertContains(page, '<option value="de" lang="de"')
+        self.client.post(
+            reverse('employer_invite') + '?lang=en',
+            {
+                'email': 'baker@example.invalid',
+                'company_name': '  Fictional   Bakery  ',
+                'language': 'fr',
+            },
+        )
+        self.client.post(
+            reverse('employer_invite') + '?lang=en',
+            {'email': 'plain@example.invalid', 'company_name': '', 'language': 'en'},
+        )
+        self.assertEqual(
+            EmployerInvitation.objects.get(email='baker@example.invalid').company_name,
+            'Fictional Bakery',
+        )
+        self.assertEqual(
+            EmployerInvitation.objects.get(email='plain@example.invalid').company_name,
+            '',
+        )
+        dashboard = self.client.get(reverse('dashboard'), {'lang': 'en'})
+        self.assertContains(dashboard, '<td>Fictional Bakery</td>', html=True)
+
+    def test_renewal_updates_company_name(self):
+        invitation = self.create()
+        EmployerInvitation.objects.filter(pk=invitation.pk).update(
+            expires_at=timezone.now() - timedelta(minutes=1)
+        )
+        create_invitation(self.adviser, invitation.email, 'en', 'Renamed Workshop')
+        invitation.refresh_from_db()
+        self.assertEqual(invitation.company_name, 'Renamed Workshop')
+
+    def test_email_names_adviser_company_service_and_contact(self):
+        self.adviser.first_name, self.adviser.last_name = 'Camille', 'Fictive'
+        self.adviser.save()
+        invitation = create_invitation(
+            self.adviser, 'baker@example.invalid', 'fr', 'Pain & Co'
+        )
+        subject, body = invitation_message(invitation, 'https://testserver')
+        self.assertIn('Camille Fictive, conseiller EURES, vous invite', body)
+        self.assertIn('Entreprise : Pain & Co', body)
+        self.assertNotIn('&amp;', body)
+        self.assertIn('Match Europe aide les employeurs', body)
+        self.assertIn('Contactez votre conseiller : adviser@example.invalid', body)
+        self.adviser.first_name = self.adviser.last_name = ''
+        self.adviser.save()
+        anonymous = self.create(email='anon@example.invalid', language='en')
+        body = invitation_message(anonymous, 'https://testserver')[1]
+        self.assertIn('An EURES adviser has invited you', body)
+        self.assertNotIn('Company:', body)
+
+    def test_acceptance_page_says_who_is_invited_and_by_whom(self):
+        invitation = create_invitation(
+            self.adviser, 'baker@example.invalid', 'en', 'Fictional Bakery'
+        )
+        browser = Client()
+        page = self.open_link(browser, invitation)
+        self.assertContains(page, 'baker@example.invalid')
+        self.assertContains(page, 'Fictional Bakery')
+        self.assertContains(page, 'An EURES adviser')
+        self.assertContains(page, 'mailto:adviser@example.invalid')
+        self.assertNotContains(page, 'You are currently signed in as')
+
+    def test_acceptance_page_warns_before_switching_signed_in_account(self):
+        invitation = self.create(email='baker@example.invalid')
+        page = self.open_link(self.client, invitation)
+        self.assertContains(
+            page,
+            'You are currently signed in as adviser@example.invalid. '
+            'Accepting this invitation will sign you out of that account.',
+        )
+        self.assertContains(page, 'aria-describedby="accept-switch-warning"')
+        self.client.post(reverse('employer_invitation_confirm'))
+        employer = User.objects.get(email='baker@example.invalid')
+        self.assertEqual(self.client.session['_auth_user_id'], str(employer.pk))
+
+    def test_acceptance_page_is_invalid_once_invitation_is_no_longer_valid(self):
+        invitation = self.create()
+        browser = Client()
+        self.open_link(browser, invitation)
+        EmployerInvitation.objects.filter(pk=invitation.pk).update(
+            expires_at=timezone.now() - timedelta(minutes=1)
+        )
+        page = browser.get(reverse('employer_invitation_confirm'))
+        self.assertEqual(page.context['stage'], 'invalid')
+        self.assertNotContains(page, invitation.email)

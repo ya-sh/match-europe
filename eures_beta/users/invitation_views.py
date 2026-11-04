@@ -97,9 +97,23 @@ def adviser_dashboard(request):
     )
 
 
-def confirmation_page(request, stage):
+def confirmation_page(request, stage, invitation=None):
+    signed_in = request.user if request.user.is_authenticated else None
+    context = {
+        'stage': stage,
+        'invitation': invitation,
+        'adviser_name': invitation.invited_by.get_full_name() if invitation else '',
+        # Accepting replaces the current session: say so before the switch.
+        'other_account': (
+            signed_in.email
+            if signed_in
+            and invitation
+            and signed_in.email.lower() != invitation.email.lower()
+            else ''
+        ),
+    }
     with translation.override(selected_language(request)):
-        response = render(request, 'users/accept_invitation.html', {'stage': stage})
+        response = render(request, 'users/accept_invitation.html', context)
     response['Referrer-Policy'] = 'same-origin'
     return response
 
@@ -118,13 +132,10 @@ def confirm(request):
             response = redirect('employer_invitation_confirm')
             response['Referrer-Policy'] = 'no-referrer'
             return response
+        token = request.session.get('employer_invitation_token')
+        invitation = find_invitation(token) if token else None
         return confirmation_page(
-            request,
-            (
-                'confirm'
-                if request.session.get('employer_invitation_token')
-                else 'invalid'
-            ),
+            request, 'confirm' if invitation else 'invalid', invitation
         )
     token = request.session.pop('employer_invitation_token', '')
     language = selected_language(request)

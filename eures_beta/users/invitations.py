@@ -51,12 +51,13 @@ def find_invitation(token, *, lock=False):
 
 
 @transaction.atomic
-def create_invitation(adviser, email, language):
+def create_invitation(adviser, email, language, company_name=''):
     # Serialize simultaneous invitations by one adviser, including the rate limit.
     adviser = User.objects.select_for_update().get(pk=adviser.pk)
     if not can_manage_employers(adviser):
         raise ValidationError(_('You are not allowed to invite employers.'))
     email = email.strip().lower()
+    company_name = ' '.join(company_name.split())[:100]
     if User.objects.filter(email__iexact=email).exists():
         raise ValidationError(_('An account already exists for this email address.'))
     now = timezone.now()
@@ -82,11 +83,15 @@ def create_invitation(adviser, email, language):
         invitation.expires_at = invitation_expiry()
         invitation.invited_by = adviser
         invitation.language = language
+        invitation.company_name = company_name
         invitation.email_sent_at = None
         invitation.save()
     else:
         invitation = EmployerInvitation.objects.create(
-            email=email, language=language, invited_by=adviser
+            email=email,
+            language=language,
+            company_name=company_name,
+            invited_by=adviser,
         )
     bucket.attempts += 1
     bucket.save(update_fields=['attempts', 'expires'])
@@ -130,6 +135,12 @@ def invitation_message(invitation, origin):
             _('Your invitation to Match Europe'),
             render_to_string(
                 'users/invitation_email.txt',
-                {'link': link, 'expires_at': invitation.expires_at},
+                {
+                    'link': link,
+                    'expires_at': invitation.expires_at,
+                    'company_name': invitation.company_name,
+                    'adviser_name': invitation.invited_by.get_full_name(),
+                    'adviser_email': invitation.invited_by.email,
+                },
             ),
         )

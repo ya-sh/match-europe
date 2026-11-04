@@ -52,6 +52,7 @@
         <thead>
           <tr>
             <th scope="col">{% translate "Email address" %}</th>
+            <th scope="col">{% translate "Company" %}</th>
             <th scope="col">{% translate "Status" %}</th>
             <th scope="col">{% translate "Invited on" %}</th>
             <th scope="col">{% translate "Expires on" %}</th>
@@ -61,6 +62,7 @@
           {% for invitation in invitations %}
             <tr>
               <td>{{ invitation.email }}</td>
+              <td>{{ invitation.company_name|default:"—" }}</td>
               <td>
                 {% if invitation.expired %}
                   {% translate "Expired invitation" %}
@@ -78,7 +80,7 @@
             </tr>
           {% empty %}
             <tr>
-              <td colspan="4">{% translate "No pending invitation." %}</td>
+              <td colspan="5">{% translate "No pending invitation." %}</td>
             </tr>
           {% endfor %}
         </tbody>

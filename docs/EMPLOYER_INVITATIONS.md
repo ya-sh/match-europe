@@ -2,7 +2,8 @@
 
 Les conseillers actifs habilités voient les comptes employeurs et les invitations
 en attente sur `/accounts/dashboard/` (25 lignes par liste). Le bouton d'invitation
-ouvre `/accounts/employers/invite/` : e-mail et langue du message. Le tableau de
+ouvre `/accounts/employers/invite/` : e-mail, nom d'entreprise facultatif et langue
+du message. Le tableau de
 bord employeur reste en construction. Tous les conseillers habilités voient les
 comptes employeurs, sans périmètre individuel dans cette première version.
 
@@ -18,6 +19,20 @@ normalisé unique, langue, conseiller à l'origine, dates de création, expirati
 acceptation, compte créé et date d'envoi effectif éventuel. Un identifiant aléatoire
 de renouvellement invalide les anciens liens. Les jetons sont signés, sans e-mail
 dans leur contenu, et ne sont pas conservés en clair en base.
+
+La migration additive `users.0006_employerinvitation_company_name` ajoute un nom
+d'entreprise facultatif (100 caractères). Saisi par le conseiller et non vérifié, il
+aide l'employeur à reconnaître l'invitation : e-mail, page d'acceptation, tableau
+du conseiller. Il pré-remplit seulement, de façon modifiable, le nom du premier
+établissement ; aucune appartenance n'en est déduite.
+
+## Message et page d'acceptation
+
+L'e-mail nomme le conseiller (si son nom est renseigné), l'entreprise éventuelle,
+décrit le service en une phrase et donne l'adresse du conseiller pour toute question.
+La page d'acceptation affiche l'adresse invitée, l'entreprise et le conseiller. Si
+une autre session est ouverte sur l'appareil, elle prévient que l'acceptation la
+remplacera. Une invitation devenue invalide affiche directement l'écran d'erreur.
 
 GET nettoie l'URL avec `no-referrer`, sans créer de compte. Une confirmation POST
 avec CSRF accepte l'invitation et connecte le destinataire. Le rôle est toujours

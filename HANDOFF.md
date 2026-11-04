@@ -1,3 +1,17 @@
+## 4 novembre 2026 — invitations employeurs plus rassurantes
+
+PR empilée sur #129. Champ facultatif `EmployerInvitation.company_name` (migration
+additive `users.0006`, 100 caractères, espaces normalisés, mis à jour au
+renouvellement). Ce nom saisi par le conseiller n’est pas vérifié : il est affiché dans
+l’e-mail, sur la page d’acceptation et dans le tableau du conseiller, et ne fait que
+pré-remplir (modifiable) le premier établissement. E-mail : nom du conseiller s’il est
+renseigné, entreprise, une phrase sur le service, et l’adresse du conseiller pour
+toute question. Page d’acceptation : adresse invitée, entreprise, conseiller, et
+avertissement si une autre session est ouverte (l’acceptation la remplace). Une invitation
+devenue invalide affiche directement l’écran d’erreur. Options de langue avec `lang`
+(RGAA 8.7). Aucune règle de création de compte modifiée. Migration aller/retour testée
+en local (`0006` ↔ `0005`).
+
 ## 4 novembre 2026 — fluidité et accessibilité : inscription entreprises et parcours candidat
 
 PR empilée sur #128, titre fourni par l’utilisateur. Revue navigateur, données fictives.

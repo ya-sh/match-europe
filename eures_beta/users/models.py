@@ -24,6 +24,8 @@ class EmployerInvitation(models.Model):
     nonce = models.UUIDField(default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
     language = models.CharField(max_length=2, choices=settings.LANGUAGES, default='fr')
+    # Optional label typed by the adviser; not a verified legal company.
+    company_name = models.CharField(max_length=100, blank=True, default='')
     invited_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,

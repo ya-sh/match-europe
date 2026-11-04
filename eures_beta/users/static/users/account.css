@@ -76,3 +76,36 @@
 .account-welcome p {
   margin: 0;
 }
+
+.invitation-summary {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 16px;
+  margin: 16px 0;
+}
+
+.invitation-summary dt {
+  font-weight: 700;
+}
+
+.invitation-summary dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.account-warning {
+  padding: 12px 16px;
+  border-left: 4px solid #b45309;
+  border-radius: 6px;
+  background: #fffbeb;
+}
+
+@media (max-width: 480px) {
+  .invitation-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .invitation-summary dd {
+    margin-bottom: 8px;
+  }
+}

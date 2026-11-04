@@ -7568,3 +7568,41 @@ msgstr "Arbeitgeberkonten werden von einer EURES-Beraterin oder einem EURES-Bera
 msgctxt "employer invitation help"
 msgid "Find an EURES adviser (EURES portal)"
 msgstr "EURES-Beratung finden (EURES-Portal)"
+
+msgid "Company name (optional)"
+msgstr "Name des Unternehmens (optional)"
+
+msgid "Shown in the invitation email and on the acceptance page, so the employer recognises your invitation. It is not checked."
+msgstr "Wird in der Einladungs-E-Mail und auf der Annahmeseite angezeigt, damit der Arbeitgeber Ihre Einladung erkennt. Er wird nicht überprüft."
+
+#, python-format
+msgid "%(name)s, an EURES adviser, has invited you to Match Europe as an employer."
+msgstr "%(name)s, EURES-Berater, hat Sie als Arbeitgeber zu Match Europe eingeladen."
+
+#, python-format
+msgid "Company: %(company)s"
+msgstr "Unternehmen: %(company)s"
+
+msgid "Match Europe helps employers recruit across Europe, with the support of EURES advisers. With your account, you can import your job offer, check it and save your recruitment needs."
+msgstr "Match Europe unterstützt Arbeitgeber bei der Personalsuche in ganz Europa, gemeinsam mit den EURES-Beratern. Mit Ihrem Konto können Sie Ihr Stellenangebot importieren, prüfen und Ihren Personalbedarf speichern."
+
+#, python-format
+msgid "Questions or doubts about this invitation? Contact your adviser: %(email)s"
+msgstr "Fragen oder Zweifel zu dieser Einladung? Wenden Sie sich an Ihren Berater: %(email)s"
+
+msgid "Invitation for"
+msgstr "Einladung für"
+
+msgid "Invited by"
+msgstr "Eingeladen von"
+
+#, python-format
+msgid "%(name)s, EURES adviser"
+msgstr "%(name)s, EURES-Berater"
+
+msgid "An EURES adviser"
+msgstr "Ein EURES-Berater"
+
+#, python-format
+msgid "You are currently signed in as %(email)s. Accepting this invitation will sign you out of that account."
+msgstr "Sie sind derzeit als %(email)s angemeldet. Wenn Sie diese Einladung annehmen, werden Sie von diesem Konto abgemeldet."

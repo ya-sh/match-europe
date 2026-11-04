@@ -1,6 +1,12 @@
-{% load i18n %}{% translate "An EURES adviser has invited you to Match Europe as an employer." %}
+{% load i18n %}{% autoescape off %}{% if adviser_name %}{% blocktranslate with name=adviser_name %}{{ name }}, an EURES adviser, has invited you to Match Europe as an employer.{% endblocktranslate %}{% else %}{% translate "An EURES adviser has invited you to Match Europe as an employer." %}{% endif %}{% if company_name %}
+{% blocktranslate with company=company_name %}Company: {{ company }}{% endblocktranslate %}{% endif %}
+
+{% translate "Match Europe helps employers recruit across Europe, with the support of EURES advisers. With your account, you can import your job offer, check it and save your recruitment needs." %}
 
 {% translate "Open your personal link, then confirm to create your account and sign in:" %}
 {{ link }}
 
 {% translate "This invitation is valid for seven days and can be used once. Do not forward it. If you did not expect it, ignore this message." %}
+
+{% blocktranslate with email=adviser_email %}Questions or doubts about this invitation? Contact your adviser: {{ email }}{% endblocktranslate %}
+{% endautoescape %}
